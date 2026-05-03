@@ -1,0 +1,44 @@
+# API keys / credentials
+ElevenLabs.md
+resembleAI.md
+
+# Test files and media
+TestFiles/
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.mkv
+
+# Subtitle / text output files
+*.srt
+*.ass
+*.txt
+
+# Pipeline output folders
+*_pipeline/
+*_segments/
+*_segments*/
+
+# Request logs
+*_requests.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# OS files
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/
