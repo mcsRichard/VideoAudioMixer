@@ -25,6 +25,7 @@
 | `srt_to_txt.py` | 从双语 SRT 中提取英文字幕，去除中文/时间轴/序号，输出 TXT |
 | `mp3_to_srt.py` | 用 Whisper 转录 MP3，结合 TXT 文字生成时间对齐的 SRT |
 | `srt_to_ass.py` | 将 SRT 转换为 ASS 格式，精确定义字幕框位置、字体、描边 |
+| `add_subtitles.py` | 一键生成英文字幕并烧录到视频（MP3+TXT+SRT+MP4 → 带字幕 MP4）|
 | **`pipeline.py`** | **一键流水线：输入 MP4 + SRT，自动完成全部步骤输出最终视频** |
 
 ---
@@ -509,6 +510,59 @@ python pipeline.py 001.mp4 001_subtitles.srt --from-step 2
 
 # 只重新跑步骤 4（mixer），例如调整了 SRT 边界
 python pipeline.py 001.mp4 001_subtitles.srt --from-step 4
+```
+
+---
+
+## add_subtitles.py（一键烧录英文字幕）
+
+在视频上遮盖原有中文字幕（白色遮罩），并将英文字幕烧录到遮罩区域内。三步自动完成：
+
+```
+步骤 1  mp3_to_srt.py   MP3 + TXT → 英文 SRT（Whisper 对齐时间轴）
+步骤 2  srt_to_ass.py   SRT → ASS（精确定位字幕框）
+步骤 3  FFmpeg          视频 + 白色遮罩 + ASS 字幕 → 最终 MP4
+```
+
+起始时间和 drawbox 时间范围自动从原始 SRT 第一条/最后一条时间戳提取，无需手动计算。
+
+所有中间文件（`.srt`、`.ass`）保存在 MP3 所在目录，方便单步重跑。
+
+### 用法
+
+```
+python add_subtitles.py <input.mp3> <transcript.txt> <original.srt> <video.mp4> [选项]
+```
+
+### 参数
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `mp3` | — | 英文音频 MP3（TTS 生成的，与 transcript.txt 对应）|
+| `txt` | — | 英文文稿 TXT |
+| `srt` | — | 原始双语 SRT（用于提取配音起止时间）|
+| `video` | — | 视频 MP4 |
+| `--res` | `1280x960` | 视频分辨率 WxH |
+| `--box` | `0,700,1280,200` | 字幕框 x,y,w,h |
+| `--box-color` | `white@0.95` | 遮罩颜色 |
+| `--font-size` | `44` | 字幕字体大小 |
+| `--color` | `333333` | 字幕颜色 RRGGBB |
+| `--whisper-model` | `small` | Whisper 模型 |
+| `--from-step` | `1` | 从第 N 步开始（断点续跑）|
+| `-o`, `--output` | 自动 | 输出 MP4（默认：与输入同目录，`<视频名>_subtitled.mp4`）|
+| `-v`, `--verbose` | 关 | 打印 FFmpeg 命令 |
+
+### 示例
+
+```bash
+# pipeline.py 输出目录下直接运行
+python add_subtitles.py 002_pipeline/voice_fitted.mp3 002_pipeline/transcript.txt 002_chinese-english_subtitles_HRF.srt 002.mp4
+
+# 自定义字幕框和字体
+python add_subtitles.py voice.mp3 transcript.txt original.srt video.mp4 --box 0,650,1280,250 --font-size 40
+
+# 步骤 1 已完成，从步骤 2 重新开始
+python add_subtitles.py voice.mp3 transcript.txt original.srt video.mp4 --from-step 2
 ```
 
 ---
