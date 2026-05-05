@@ -191,7 +191,8 @@ def tts_elevenlabs(api_key, voice_id, text, sample_rate=44100,
                    model='eleven_multilingual_v2', sentence_break=0.8,
                    stability=0.75, style=0.0, speed=1.0, comma_break=0.2,
                    similarity_boost=0.8, retries=3, request_log=None,
-                   chunk_index=None, previous_text=None, next_text=None):
+                   chunk_index=None, previous_text=None, next_text=None,
+                   timeout=120):
     is_v3 = 'v3' in model
     if sentence_break > 0:
         if is_v3:
@@ -242,7 +243,7 @@ def tts_elevenlabs(api_key, voice_id, text, sample_rate=44100,
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, data=payload, headers=headers, method='POST')
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as e:
             body = e.read().decode('utf-8', errors='replace')
@@ -469,6 +470,8 @@ def main():
     parser.add_argument('--post-speed',      type=float, default=1.0,
                         help='输出后处理加速倍率（atempo），1.0=不处理（默认: 1.0）')
     parser.add_argument('--delay',          type=float, default=0.3)
+    parser.add_argument('--timeout',        type=int,   default=120,
+                        help='每次 API 请求超时秒数（默认: 120）')
     parser.add_argument('--test',           action='store_true',
                         help='测试模式：只处理前 5 条/块')
     parser.add_argument('--segments-dir',   default=None,
@@ -498,7 +501,7 @@ def main():
                                   args.stability, args.style, args.speed, args.comma_break,
                                   args.similarity_boost, request_log=request_log,
                                   chunk_index=idx, previous_text=previous_text,
-                                  next_text=next_text)
+                                  next_text=next_text, timeout=args.timeout)
         provider_label = f'ElevenLabs ({args.el_model})'
     else:
         if not args.re_api_key:

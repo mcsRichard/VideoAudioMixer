@@ -49,6 +49,8 @@ def main():
                         help='句尾停顿秒数（默认: 0.5）')
     parser.add_argument('--max-chars',         type=int,   default=4500,
                         help='TTS 每块最大字符数（默认: 4500）')
+    parser.add_argument('--timeout',           type=int,   default=120,
+                        help='每次 API 请求超时秒数（默认: 120）')
 
     # Pipeline control
     parser.add_argument('--from-step',         type=int,   default=1,
@@ -103,6 +105,7 @@ def main():
             '--sentence-break',   str(args.sentence_break),
             '--max-chars',        str(args.max_chars),
             '--log-requests',
+            '--timeout',          str(args.timeout),
             '-o', voice_path,
         ], args.verbose)
         if not ok:
