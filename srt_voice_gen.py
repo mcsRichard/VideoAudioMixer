@@ -16,7 +16,10 @@ import wave
 # ── Config loading ────────────────────────────────────────────────────────────
 
 def _read_config(filename):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    # When frozen (PyInstaller exe), config files live next to the exe
+    base = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) \
+           else os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(base, filename)
     if not os.path.exists(path):
         return {}
     with open(path, encoding='utf-8') as f:
