@@ -12,7 +12,7 @@ if %errorlevel% neq 0 (
 )
 
 echo [2/2] Building VideoAudioMixer.exe...
-pyinstaller --onefile --console --name VideoAudioMixer ^
+python -m PyInstaller --onefile --console --name VideoAudioMixer ^
     --hidden-import srt_to_txt ^
     --hidden-import srt_voice_gen ^
     --hidden-import speed_mp3 ^
